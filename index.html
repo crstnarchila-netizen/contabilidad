@@ -3,264 +3,337 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contabilidad e Inventario</title>
+  <title>Control Diario - La Esquinita</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="manifest" href="manifest.json">
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; }
   </style>
-  <link rel="manifest" href="manifest.json">
 </head>
-<body class="bg-slate-100 text-slate-800 pb-12">
+<body class="bg-slate-900 text-slate-100 min-h-screen pb-12">
 
-  <!-- Encabezado y Cambio de Perfil -->
-  <header class="bg-slate-900 text-white p-4 shadow-md sticky top-0 z-50">
+  <!-- ENCABEZADO -->
+  <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50">
     <div class="max-w-md mx-auto flex justify-between items-center">
-      <h1 class="font-bold text-base">Control Diario</h1>
-      <div class="flex items-center space-x-1 bg-slate-800 p-1 rounded-lg">
-        <button id="btnEmpresa" onclick="cambiarPerfil('EMPRESA')" class="px-3 py-1 text-xs rounded-md font-medium transition bg-indigo-600 text-white">Empresa</button>
-        <button id="btnPersonal" onclick="cambiarPerfil('PERSONAL')" class="px-3 py-1 text-xs rounded-md font-medium transition text-slate-300">Personal</button>
+      <h1 class="font-bold text-lg text-white">La Esquinita App</h1>
+      <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700">
+        <button id="btnEmpresa" onclick="cambiarSeccion('EMPRESA')" class="px-3 py-1 text-xs font-semibold rounded-md bg-indigo-600 text-white">Empresa</button>
+        <button id="btnPersonal" onclick="cambiarSeccion('PERSONAL')" class="px-3 py-1 text-xs font-semibold rounded-md text-slate-400">Personal</button>
+        <button id="btnInforme" onclick="cambiarSeccion('INFORME')" class="px-3 py-1 text-xs font-semibold rounded-md text-slate-400">Informe</button>
       </div>
     </div>
   </header>
 
   <main class="max-w-md mx-auto p-4 space-y-6">
 
-    <!-- PERFIL EMPRESA -->
-    <section id="seccionEmpresa" class="space-y-6">
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="font-bold text-slate-700 mb-2 text-sm">Resumen Negocio (Plantillas)</h2>
-        <div class="grid grid-cols-2 gap-3 text-center">
-          <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-100">
-            <span class="text-[10px] text-emerald-600 font-semibold uppercase">Ventas Hoy</span>
-            <p id="totalVentasEmpresa" class="text-lg font-bold text-emerald-700">$0</p>
-          </div>
-          <div class="bg-rose-50 p-3 rounded-lg border border-rose-100">
-            <span class="text-[10px] text-rose-600 font-semibold uppercase">Gastos Hoy</span>
-            <p id="totalGastosEmpresa" class="text-lg font-bold text-rose-700">$0</p>
-          </div>
+    <!-- SECCIÓN EMPRESA -->
+    <section id="secEmpresa" class="space-y-4">
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+          <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Ventas Hoy</p>
+          <p id="totalVentasEmpresa" class="text-xl font-black text-emerald-400">$0</p>
+        </div>
+        <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+          <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Ganancia Bruta</p>
+          <p id="totalGananciaBruta" class="text-xl font-black text-indigo-400">$0</p>
         </div>
       </div>
 
-      <!-- Cierre Diario Exhibidor -->
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <h3 class="font-bold text-indigo-900 text-sm mb-1">Cierre Diario de Exhibidor (80 Pares)</h3>
-        <p class="text-xs text-slate-500 mb-3">Ingresa los pares que quedaron al final del día.</p>
+      <!-- Cierre Diario de Exhibidor -->
+      <form onsubmit="registrarCierreExhibidor(event)" class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3">
+        <h3 class="font-bold text-sm text-slate-200">Cierre Diario de Exhibidor (80 Pares)</h3>
+        <p class="text-xs text-slate-400">Ingresa la cantidad de pares vendidos hoy:</p>
         
-        <form onsubmit="guardarCierre(event)" class="space-y-3">
+        <div class="grid grid-cols-3 gap-2">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Pares restantes en el exhibidor</label>
-            <input type="number" id="exhibidorRestante" max="80" min="0" required placeholder="Ej: 65" oninput="calcularVentaPuntoFisico()" class="w-full p-2 text-lg font-bold border rounded-lg focus:ring-2 focus:ring-indigo-500">
-          </div>
-
-          <div id="resultadoCalculo" class="hidden bg-indigo-50 p-3 rounded-lg text-xs space-y-1 border border-indigo-100">
-            <p class="text-indigo-900">Pares vendidos: <span id="calcParesVendidos" class="font-bold text-sm">0</span></p>
-            <p class="text-indigo-900">Total ingreso ($5.000 / par): <span id="calcIngresoTotal" class="font-bold text-sm text-emerald-600">$0</span></p>
-            <p class="text-indigo-900">Recarga requerida de bodega: <span id="calcRecarga" class="font-bold text-sm text-amber-600">0 pares</span></p>
-          </div>
-
-          <div class="grid grid-cols-3 gap-2 pt-1">
-            <div>
-              <label class="block text-[11px] font-semibold text-slate-600">Gruesas</label>
-              <input type="number" id="cantGruesas" min="0" value="0" class="w-full p-2 border rounded-lg text-sm">
-            </div>
-            <div>
-              <label class="block text-[11px] font-semibold text-slate-600">Delgadas</label>
-              <input type="number" id="cantDelgadas" min="0" value="0" class="w-full p-2 border rounded-lg text-sm">
-            </div>
-            <div>
-              <label class="block text-[11px] font-semibold text-slate-600">Niño</label>
-              <input type="number" id="cantNino" min="0" value="0" class="w-full p-2 border rounded-lg text-sm">
-            </div>
-          </div>
-
-          <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-2.5 rounded-lg text-sm shadow active:scale-98">Registrar Cierre Diario</button>
-        </form>
-      </div>
-
-      <!-- Registrar Gasto Empresa -->
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <h3 class="font-bold text-rose-900 text-sm mb-2">Registrar Gasto de Empresa</h3>
-        <form onsubmit="guardarGastoEmpresa(event)" class="space-y-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Categoría</label>
-            <select id="catGastoEmpresa" class="w-full p-2 border rounded-lg text-sm bg-white">
-              <option value="Compra de Mercancía">📦 Compra de Mercancía</option>
-              <option value="Mantenimiento y Varios">🛠️ Mantenimiento y Varios</option>
-              <option value="Publicidad y Ventas">📣 Publicidad y Ventas</option>
-            </select>
+            <label class="block text-[10px] text-slate-400">Gruesas ($5k)</label>
+            <input type="number" id="cantGruesas" min="0" placeholder="0" class="w-full p-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-white">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Monto ($ COP)</label>
-            <input type="number" id="montoGastoEmpresa" min="0" required placeholder="0" class="w-full p-2 border rounded-lg text-sm">
+            <label class="block text-[10px] text-slate-400">Delgadas ($5k)</label>
+            <input type="number" id="cantDelgadas" min="0" placeholder="0" class="w-full p-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-white">
           </div>
-          <button type="submit" class="w-full bg-rose-600 text-white font-bold py-2.5 rounded-lg text-sm shadow active:scale-98">Guardar Gasto Empresa</button>
-        </form>
-      </div>
+          <div>
+            <label class="block text-[10px] text-slate-400">Niño ($5k)</label>
+            <input type="number" id="cantNino" min="0" placeholder="0" class="w-full p-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-white">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 rounded-lg text-sm transition">Registrar Ventas</button>
+      </form>
+
+      <!-- Gastos Empresa -->
+      <form onsubmit="guardarGastoEmpresa(event)" class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3">
+        <h3 class="font-bold text-sm text-slate-200">Registrar Gasto de Empresa</h3>
+        <select id="catGastoEmpresa" class="w-full p-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-white">
+          <option value="Mercancía">Compra de Mercancía / Insumos</option>
+          <option value="Transporte">Transporte / Envíos</option>
+          <option value="Empaque">Empaque / Bolsas</option>
+          <option value="Otros">Otros Gastos</option>
+        </select>
+        <input type="number" id="montoGastoEmpresa" min="1" required placeholder="Monto ($ COP)" class="w-full p-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-white">
+        <button type="submit" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-semibold py-2 rounded-lg text-sm transition">Guardar Gasto Empresa</button>
+      </form>
     </section>
 
-    <!-- PERFIL PERSONAL -->
-    <section id="seccionPersonal" class="space-y-6 hidden">
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="font-bold text-slate-700 mb-2 text-sm">Gastos Personales</h2>
-        <div class="bg-rose-50 p-3 rounded-lg border border-rose-100 text-center">
-          <span class="text-[10px] text-rose-600 font-semibold uppercase">Total Gastos Personales</span>
-          <p id="totalGastosPersonal" class="text-lg font-bold text-rose-700">$0</p>
+    <!-- SECCIÓN PERSONAL -->
+    <section id="secPersonal" class="space-y-4 hidden">
+      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+        <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Total Gastos Personales</p>
+        <p id="totalGastosPersonal" class="text-2xl font-black text-rose-400">$0</p>
+      </div>
+
+      <form onsubmit="guardarGastoPersonal(event)" class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3">
+        <h3 class="font-bold text-sm text-slate-200">Nuevo Gasto Personal</h3>
+        <select id="catGastoPersonal" class="w-full p-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-white">
+          <option value="Alimentación">Alimentación / Comida</option>
+          <option value="Transporte">Transporte / Gasolina</option>
+          <option value="Entretenimiento">Entretenimiento</option>
+          <option value="Varios">Varios</option>
+        </select>
+        <input type="number" id="montoGastoPersonal" min="1" required placeholder="Monto ($ COP)" class="w-full p-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-white">
+        <input type="text" id="notaGastoPersonal" placeholder="Nota u observación (Opcional)" class="w-full p-2 text-sm bg-slate-900 border border-slate-700 rounded-lg text-white">
+        <button type="submit" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-semibold py-2 rounded-lg text-sm transition">Guardar Gasto Personal</button>
+      </form>
+    </section>
+
+    <!-- SECCIÓN INFORME Y BALANCES -->
+    <section id="secInforme" class="space-y-4 hidden">
+      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3">
+        <h3 class="font-bold text-base text-white border-b border-slate-700 pb-2">Estado de Resultados (Hoy)</h3>
+        
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between text-emerald-400">
+            <span>(+) Ventas Totales:</span>
+            <span id="infVentas" class="font-bold">$0</span>
+          </div>
+          <div class="flex justify-between text-slate-400">
+            <span>(-) Costo de Mercancía:</span>
+            <span id="infCosto" class="font-bold">$0</span>
+          </div>
+          <div class="flex justify-between text-indigo-400 font-semibold pt-1 border-t border-slate-700">
+            <span>(=) Ganancia Bruta:</span>
+            <span id="infBruta">$0</span>
+          </div>
+          <div class="flex justify-between text-rose-400">
+            <span>(-) Gastos de Empresa:</span>
+            <span id="infGastosEmp">$0</span>
+          </div>
+          <div class="flex justify-between text-white text-base font-black pt-2 border-t border-slate-700">
+            <span>(=) Ganancia Neta Empresa:</span>
+            <span id="infNeta" class="text-emerald-400">$0</span>
+          </div>
         </div>
       </div>
 
-      <!-- Registrar Gasto Personal -->
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <h3 class="font-bold text-slate-800 text-sm mb-2">Nuevo Gasto Personal</h3>
-        <form onsubmit="guardarGastoPersonal(event)" class="space-y-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Categoría</label>
-            <select id="catGastoPersonal" class="w-full p-2 border rounded-lg text-sm bg-white">
-              <optgroup label="📌 Gastos Fijos">
-                <option value="Tarjeta Bancolombia">💳 Tarjeta Bancolombia</option>
-                <option value="Plan Claro">📱 Plan Claro</option>
-                <option value="Internet Casa">🌐 Internet Casa</option>
-                <option value="Gym">🏋️ Gym</option>
-              </optgroup>
-              <optgroup label="🏍️ Moto">
-                <option value="Moto: Gasolina">⛽ Gasolina</option>
-                <option value="Moto: Mecánico">🔧 Mecánico</option>
-              </optgroup>
-              <optgroup label="🤝 Invitaciones">
-                <option value="Invitación: Karen">👤 Karen</option>
-                <option value="Invitación: Mamá">👩‍👦 Mamá</option>
-                <option value="Invitación: Papá">👨‍👦 Papá</option>
-                <option value="Invitación: Otros">👥 Otros</option>
-              </optgroup>
-              <optgroup label="🛒 Personales">
-                <option value="Billar">🎱 Billar</option>
-                <option value="Estudios">🎓 Estudios</option>
-                <option value="Ropa">👕 Ropa</option>
-                <option value="Comida">🍲 Comida</option>
-                <option value="Casa">🏠 Casa</option>
-                <option value="Otros Personales">❓ Otros Personales</option>
-              </optgroup>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Monto ($ COP)</label>
-            <input type="number" id="montoGastoPersonal" min="0" required placeholder="0" class="w-full p-2 border rounded-lg text-sm">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Nota u observación (Opcional)</label>
-            <input type="text" id="notaGastoPersonal" placeholder="Ej: Cambio de aceite, Almuerzo" class="w-full p-2 border rounded-lg text-sm">
-          </div>
-          <button type="submit" class="w-full bg-slate-800 text-white font-bold py-2.5 rounded-lg text-sm shadow active:scale-98">Guardar Gasto Personal</button>
-        </form>
+      <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-2 text-xs">
+        <h4 class="font-bold text-slate-300">Desglose de Margen del Punto Físico</h4>
+        <p class="text-slate-400">• Gruesa: Venta $5.000 | Costo $2.500 $\rightarrow$ **Ganancia $2.500**</p>
+        <p class="text-slate-400">• Delgado: Venta $5.000 | Costo $2.000 $\rightarrow$ **Ganancia $3.000**</p>
+        <p class="text-slate-400">• Niño: Venta $5.000 | Costo $2.000 $\rightarrow$ **Ganancia $3.000**</p>
       </div>
     </section>
 
-    <!-- Historial de Movimientos -->
-    <section class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-      <h3 class="font-bold text-slate-800 text-sm mb-2">Historial Reciente</h3>
-      <div id="listaHistorial" class="space-y-2 text-xs text-slate-600">
-        <p class="text-slate-400 italic">No hay registros hoy.</p>
+    <!-- HISTORIAL GENERAL -->
+    <section class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="font-bold text-sm text-slate-200">Historial Reciente</h3>
+        <button onclick="reiniciarDia()" class="text-xs text-rose-400 hover:text-rose-300 font-semibold">Borrar Todo</button>
+      </div>
+      <div id="listaHistorial" class="space-y-2 text-xs">
+        <p class="text-slate-500 text-center py-2">No hay registros hoy.</p>
       </div>
     </section>
 
   </main>
 
   <script>
-    let perfilActivo = 'EMPRESA';
-    let ventasEmpresa = 0;
-    let gastosEmpresa = 0;
-    let gastosPersonal = 0;
+    // PRECIOS Y COSTOS REALES DEL PUNTO FÍSICO
+    const PRECIOS = {
+      gruesa: { venta: 5000, costo: 2500, ganancia: 2500 },
+      delgada: { venta: 5000, costo: 2000, ganancia: 3000 },
+      nino: { venta: 5000, costo: 2000, ganancia: 3000 }
+    };
 
-    function cambiarPerfil(perfil) {
-      perfilActivo = perfil;
-      const btnE = document.getElementById('btnEmpresa');
-      const btnP = document.getElementById('btnPersonal');
-      const secE = document.getElementById('seccionEmpresa');
-      const secP = document.getElementById('seccionPersonal');
+    let datos = {
+      ventasTotales: 0,
+      costoTotal: 0,
+      gananciaBruta: 0,
+      gastosEmpresa: 0,
+      gastosPersonal: 0,
+      historial: []
+    };
 
-      if(perfil === 'EMPRESA') {
-        btnE.className = "px-3 py-1 text-xs rounded-md font-medium transition bg-indigo-600 text-white";
-        btnP.className = "px-3 py-1 text-xs rounded-md font-medium transition text-slate-300";
-        secE.classList.remove('hidden');
-        secP.classList.add('hidden');
-      } else {
-        btnP.className = "px-3 py-1 text-xs rounded-md font-medium transition bg-indigo-600 text-white";
-        btnE.className = "px-3 py-1 text-xs rounded-md font-medium transition text-slate-300";
-        secP.classList.remove('hidden');
-        secE.classList.add('hidden');
-      }
+    window.addEventListener('DOMContentLoaded', () => {
+      cargarDatos();
+      renderizar();
+    });
+
+    function cambiarSeccion(sec) {
+      document.getElementById('secEmpresa').classList.toggle('hidden', sec !== 'EMPRESA');
+      document.getElementById('secPersonal').classList.toggle('hidden', sec !== 'PERSONAL');
+      document.getElementById('secInforme').classList.toggle('hidden', sec !== 'INFORME');
+
+      document.getElementById('btnEmpresa').className = `px-3 py-1 text-xs font-semibold rounded-md ${sec === 'EMPRESA' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`;
+      document.getElementById('btnPersonal').className = `px-3 py-1 text-xs font-semibold rounded-md ${sec === 'PERSONAL' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`;
+      document.getElementById('btnInforme').className = `px-3 py-1 text-xs font-semibold rounded-md ${sec === 'INFORME' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`;
     }
 
-    function calcularVentaPuntoFisico() {
-      const restantes = parseInt(document.getElementById('exhibidorRestante').value);
-      const resBox = document.getElementById('resultadoCalculo');
-
-      if(!isNaN(restantes) && restantes <= 80 && restantes >= 0) {
-        const vendidos = 80 - restantes;
-        const total = vendidos * 5000;
-        document.getElementById('calcParesVendidos').innerText = vendidos;
-        document.getElementById('calcIngresoTotal').innerText = '$' + total.toLocaleString('es-CO');
-        document.getElementById('calcRecarga').innerText = vendidos + ' pares';
-        resBox.classList.remove('hidden');
-      } else {
-        resBox.classList.add('hidden');
-      }
-    }
-
-    function guardarCierre(e) {
+    function registrarCierreExhibidor(e) {
       e.preventDefault();
-      const restantes = parseInt(document.getElementById('exhibidorRestante').value);
-      const vendidos = 80 - restantes;
-      const ingreso = vendidos * 5000;
-      ventasEmpresa += ingreso;
-      document.getElementById('totalVentasEmpresa').innerText = '$' + ventasEmpresa.toLocaleString('es-CO');
-      
-      const g = document.getElementById('cantGruesas').value || 0;
-      const d = document.getElementById('cantDelgadas').value || 0;
-      const n = document.getElementById('cantNino').value || 0;
+      const g = parseInt(document.getElementById('cantGruesas').value) || 0;
+      const d = parseInt(document.getElementById('cantDelgadas').value) || 0;
+      const n = parseInt(document.getElementById('cantNino').value) || 0;
 
-      agregarHistorial(`Venta Exhibidor: ${vendidos} pares (G:${g}, D:${d}, N:${n}) +$${ingreso.toLocaleString('es-CO')}`);
+      if (g + d + n === 0) return;
+
+      const v = (g * PRECIOS.gruesa.venta) + (d * PRECIOS.delgada.venta) + (n * PRECIOS.nino.venta);
+      const c = (g * PRECIOS.gruesa.costo) + (d * PRECIOS.delgada.costo) + (n * PRECIOS.nino.costo);
+      const gb = v - c;
+
+      datos.ventasTotales += v;
+      datos.costoTotal += c;
+      datos.gananciaBruta += gb;
+
+      datos.historial.unshift({
+        id: Date.now(),
+        tipo: 'Venta',
+        texto: `Venta Plantillas (${g}G, ${d}D, ${n}N)`,
+        monto: v,
+        costo: c,
+        ganancia: gb,
+        hora: horaActual()
+      });
+
+      guardarYRenderizar();
       e.target.reset();
-      document.getElementById('resultadoCalculo').classList.add('hidden');
-      alert('Cierre diario registrado correctamente.');
     }
 
     function guardarGastoEmpresa(e) {
       e.preventDefault();
       const cat = document.getElementById('catGastoEmpresa').value;
-      const monto = parseInt(document.getElementById('montoGastoEmpresa').value);
-      gastosEmpresa += monto;
-      document.getElementById('totalGastosEmpresa').innerText = '$' + gastosEmpresa.toLocaleString('es-CO');
-      
-      agregarHistorial(`Gasto Empresa: ${cat} (-$${monto.toLocaleString('es-CO')})`);
+      const monto = parseInt(document.getElementById('montoGastoEmpresa').value) || 0;
+      if (monto <= 0) return;
+
+      datos.gastosEmpresa += monto;
+      datos.historial.unshift({
+        id: Date.now(),
+        tipo: 'GastoEmpresa',
+        texto: `Gasto Empresa: ${cat}`,
+        monto: monto,
+        hora: horaActual()
+      });
+
+      guardarYRenderizar();
       e.target.reset();
     }
 
     function guardarGastoPersonal(e) {
       e.preventDefault();
       const cat = document.getElementById('catGastoPersonal').value;
-      const monto = parseInt(document.getElementById('montoGastoPersonal').value);
+      const monto = parseInt(document.getElementById('montoGastoPersonal').value) || 0;
       const nota = document.getElementById('notaGastoPersonal').value;
-      gastosPersonal += monto;
-      document.getElementById('totalGastosPersonal').innerText = '$' + gastosPersonal.toLocaleString('es-CO');
-      
-      const detalleNota = nota ? ` (${nota})` : '';
-      agregarHistorial(`Gasto Personal: ${cat}${detalleNota} (-$${monto.toLocaleString('es-CO')})`);
+      if (monto <= 0) return;
+
+      datos.gastosPersonal += monto;
+      datos.historial.unshift({
+        id: Date.now(),
+        tipo: 'GastoPersonal',
+        texto: `Gasto Personal: ${cat}${nota ? ' (' + nota + ')' : ''}`,
+        monto: monto,
+        hora: horaActual()
+      });
+
+      guardarYRenderizar();
       e.target.reset();
     }
 
-    function agregarHistorial(texto) {
-      const lista = document.getElementById('listaHistorial');
-      if(lista.innerText.includes('No hay registros')) lista.innerHTML = '';
-      const item = document.createElement('div');
-      item.className = "p-2 bg-slate-50 border rounded flex justify-between items-center";
-      item.innerHTML = `<span>${texto}</span><span class="text-slate-400 text-[10px]">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>`;
-      lista.prepend(item);
+    function eliminarRegistro(id) {
+      const idx = datos.historial.findIndex(i => i.id === id);
+      if (idx !== -1) {
+        const item = datos.historial[idx];
+        if (item.tipo === 'Venta') {
+          datos.ventasTotales -= item.monto;
+          datos.costoTotal -= item.costo;
+          datos.gananciaBruta -= item.ganancia;
+        } else if (item.tipo === 'GastoEmpresa') {
+          datos.gastosEmpresa -= item.monto;
+        } else if (item.tipo === 'GastoPersonal') {
+          datos.gastosPersonal -= item.monto;
+        }
+        datos.historial.splice(idx, 1);
+        guardarYRenderizar();
+      }
     }
+
+    function reiniciarDia() {
+      if (confirm('¿Deseas reiniciar los saldos e historial del día?')) {
+        datos = { ventasTotales: 0, costoTotal: 0, gananciaBruta: 0, gastosEmpresa: 0, gastosPersonal: 0, historial: [] };
+        guardarYRenderizar();
+      }
+    }
+
+    function guardarYRenderizar() {
+      localStorage.setItem('esquinita_app_db', JSON.stringify(datos));
+      renderizar();
+    }
+
+    function cargarDatos() {
+      const db = localStorage.getItem('esquinita_app_db');
+      if (db) datos = JSON.parse(db);
+    }
+
+    function renderizar() {
+      document.getElementById('totalVentasEmpresa').innerText = fmt(datos.ventasTotales);
+      document.getElementById('totalGananciaBruta').innerText = fmt(datos.gananciaBruta);
+      document.getElementById('totalGastosPersonal').innerText = fmt(datos.gastosPersonal);
+
+      // Estado de resultados
+      document.getElementById('infVentas').innerText = fmt(datos.ventasTotales);
+      document.getElementById('infCosto').innerText = fmt(datos.costoTotal);
+      document.getElementById('infBruta').innerText = fmt(datos.gananciaBruta);
+      document.getElementById('infGastosEmp').innerText = fmt(datos.gastosEmpresa);
+      document.getElementById('infNeta').innerText = fmt(datos.gananciaBruta - datos.gastosEmpresa);
+
+      // Historial
+      const lista = document.getElementById('listaHistorial');
+      lista.innerHTML = '';
+      if (datos.historial.length === 0) {
+        lista.innerHTML = '<p class="text-slate-500 text-center py-2">No hay registros hoy.</p>';
+        return;
+      }
+
+      datos.historial.forEach(item => {
+        const div = document.createElement('div');
+        div.className = "p-2 bg-slate-900 border border-slate-700 rounded-lg flex justify-between items-center";
+        
+        let colorClass = "text-emerald-400";
+        let signo = "+";
+        if (item.tipo.includes('Gasto')) {
+          colorClass = "text-rose-400";
+          signo = "-";
+        }
+
+        div.innerHTML = `
+          <div>
+            <p class="font-medium text-slate-200">${item.texto}</p>
+            <p class="${colorClass} font-bold text-[11px]">${signo}${fmt(item.monto)} ${item.ganancia ? '(Ganancia: ' + fmt(item.ganancia) + ')' : ''}</p>
+            <span class="text-slate-500 text-[9px]">${item.hora}</span>
+          </div>
+          <button onclick="eliminarRegistro(${item.id})" class="text-rose-400 hover:bg-rose-950 p-1 rounded font-bold">✕</button>
+        `;
+        lista.appendChild(div);
+      });
+    }
+
+    function fmt(n) { return '$' + (n || 0).toLocaleString('es-CO'); }
+    function horaActual() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
+
     if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
-    });
-  }
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
   </script>
 </body>
 </html>
