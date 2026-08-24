@@ -5,11 +5,14 @@
     {
       "src": "https://cdn-icons-png.flaticon.com/512/2382/2382461.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": "./index.html",
+  "start_url": "/contabilidad/",
+  "scope": "/contabilidad/",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
-  "display": "standalone"
+  "display": "standalone",
+  "orientation": "portrait"
 }
