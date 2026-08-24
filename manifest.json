@@ -1,9 +1,9 @@
 {
-  "short_name": "Contabilidad",
-  "name": "Sistema de Contabilidad",
+  "short_name": "Confort Style",
+  "name": "Confort Style Basics",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2953/2953361.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/10008/10008823.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
