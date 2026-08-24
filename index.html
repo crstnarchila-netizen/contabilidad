@@ -256,6 +256,11 @@
       item.innerHTML = `<span>${texto}</span><span class="text-slate-400 text-[10px]">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>`;
       lista.prepend(item);
     }
+    if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
   </script>
 </body>
 </html>
